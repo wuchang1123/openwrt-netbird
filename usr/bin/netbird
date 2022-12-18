@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+if [ ! -f /tmp/netbird ]; then
+    arch=`uname -m`
+        if [ "$arch" == "mips" ]; then
+        endianness=`echo -n I | hexdump -o | awk '{ print (substr($2,6,1)=="1") ? "le" : ""; exit }'`
+    elif [ "$arch" == "armv7l" ]; then
+        arch=arm
+    elif [ "$arch" == "aarch64" ]; then
+        arch=arm64
+    elif [ "$arch" == "x86_64" ]; then
+        arch=amd64
+    fi
+
+    REPO="https://github.com/netbirdio/netbird/"
+    # this command will fetch the latest release e.g. v0.8.7
+    LATEST_TAG=$(basename $(curl -fs -o/dev/null -w %{redirect_url} ${REPO}releases/latest))
+    VERSION=${LATEST_TAG:1}
+    echo $LATEST_TAG_$VERSION
+    # curl -L -o ./netbird_${LATEST_TAG}.tar.gz ${REPO}releases/download/v${LATEST_TAG}/netbird_${LATEST_TAG}_linux_${arch}.tar.gz
+
+    echo "Downloading Netbird ${VERSION} .. ${REPO}releases/download/v${VERSION}/netbird_${VERSION}_linux_${arch}.tar.gz"
+    mkdir /tmp/netbird_${VERSION}
+    curl -L -o /tmp/netbird_${VERSION}/netbird.tar.gz ${REPO}releases/download/v${VERSION}/netbird_${VERSION}_linux_${arch}.tar.gz
+
+    tar zxvf /tmp/netbird_${VERSION}/netbird.tar.gz -C /tmp/netbird_${VERSION}
+    ls /tmp/netbird_${VERSION}/
+    mv /tmp/netbird_${VERSION}/netbird /tmp/netbird
+    chmod +x /tmp/netbird
+
+    # mv /tmp/tailscale_$version/* /tmp
+    rm -rf /tmp/netbird_${VERSION}*
+
+    echo "Done!"
+fi
+
+/tmp/netbird "$@"
