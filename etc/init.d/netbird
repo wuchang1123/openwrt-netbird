@@ -6,12 +6,12 @@
 USE_PROCD=1
 START=99
 
-cmd="/tmp/netbird "service" "run" "--config" "/etc/netbird/config.json" "--log-level" "info" "--log-file" "/var/log/netbird/client.log""
+cmd="/usr/bin/netbird "service" "run" "--config" "/etc/netbird/config.json" "--log-level" "info" "--log-file" "/var/log/netbird/client.log""
 
 name=$(basename $(readlink -f $0))
 pid_file="/var/run/$name.pid"
-stdout_log="/var/log/netbird/$name.log"
-stderr_log="/var/log/netbird/$name.err"
+stdout_log="/tmp/netbird_$name.log"
+stderr_log="/tmp/netbird_$name.err"
 
 [ -e /etc/sysconfig/$name ] && . /etc/sysconfig/$name
 

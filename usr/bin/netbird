@@ -22,7 +22,7 @@ if [ ! -f /tmp/netbird ]; then
     # curl -L -o ./netbird_${LATEST_TAG}.tar.gz ${REPO}releases/download/v${LATEST_TAG}/netbird_${LATEST_TAG}_linux_${arch}.tar.gz
 
     echo "Downloading Netbird ${VERSION} .. ${REPO}releases/download/v${VERSION}/netbird_${VERSION}_linux_${arch}.tar.gz"
-    mkdir /tmp/netbird_${VERSION}
+    mkdir -p /tmp/netbird_${VERSION}
     curl -L -o /tmp/netbird_${VERSION}/netbird.tar.gz ${REPO}releases/download/v${VERSION}/netbird_${VERSION}_linux_${arch}.tar.gz
 
     tar zxvf /tmp/netbird_${VERSION}/netbird.tar.gz -C /tmp/netbird_${VERSION}
