@@ -26,7 +26,6 @@ if [ ! -f /tmp/netbird ]; then
     curl -L -o /tmp/netbird_${VERSION}/netbird.tar.gz ${REPO}releases/download/v${VERSION}/netbird_${VERSION}_linux_${arch}.tar.gz
 
     tar zxvf /tmp/netbird_${VERSION}/netbird.tar.gz -C /tmp/netbird_${VERSION}
-    ls /tmp/netbird_${VERSION}/
     mv /tmp/netbird_${VERSION}/netbird /tmp/netbird
     chmod +x /tmp/netbird
 

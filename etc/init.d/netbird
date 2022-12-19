@@ -5,23 +5,65 @@
 
 USE_PROCD=1
 START=99
-STOP=1
+
+cmd="/tmp/netbird "service" "run" "--config" "/etc/netbird/config.json" "--log-level" "info" "--log-file" "/var/log/netbird/client.log""
+
+name=$(basename $(readlink -f $0))
+pid_file="/var/run/$name.pid"
+stdout_log="/var/log/netbird/$name.log"
+stderr_log="/var/log/netbird/$name.err"
+
+[ -e /etc/sysconfig/$name ] && . /etc/sysconfig/$name
+
+get_pid() {
+    cat "$pid_file"
+}
+
+is_running() {
+    [ -f "$pid_file" ] && cat /proc/$(get_pid)/stat > /dev/null 2>&1
+}
 
 start_service() {
-    procd_open_instance netbird
-    procd_set_param respawn
-    procd_set_param command /usr/bin/netbird
-    procd_append_param command up
-    procd_append_param command --setup-key $NETBIRD_SETUP_KEY
-    procd_append_param command --management-url $NETBIRD_MANAGMENT_URL
-    # 把输出写到系统日志中
-	# 用logread可以查看系统日志
-	procd_set_param stderr 1
-	procd_set_param stdout 1
+    if is_running; then
+        echo "Already started"
+    else
+        echo "Starting $name"
 
-    procd_close_instance
+        $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        echo $! > "$pid_file"
+        if is_running; then
+            netbird up --setup-key $NETBIRD_SETUP_KEY --management-url $NETBIRD_MANAGMENT_URL
+        else
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
+        fi
+    fi
 }
 
 stop_service() {
-    /usr/bin/netbird down
+    if is_running; then
+        echo -n "Stopping $name.."
+        netbird down
+        kill $(get_pid)
+        for i in $(seq 1 10)
+        do
+            if ! is_running; then
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
+        fi
+    else
+        echo "Not running"
+    fi
 }
