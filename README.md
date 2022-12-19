@@ -1,5 +1,9 @@
 # openwrt-netbird
 
+## set ENV
+$NETBIRD_SETUP_KEY
+$NETBIRD_MANAGMENT_URL
+
 1. Extract the contents of root to your filesystem root:
 ```
 tar x -zvC / -f openwrt-tailscale-enabler-<tag>.tgz
